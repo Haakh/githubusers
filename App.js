@@ -2,13 +2,16 @@ import React from "react";
 import {
   StyleSheet,
   Text,
+  Linking,
   View,
   FlatList,
+  TouchableOpacity,
   Image,
   TextInput,
   ActivityIndicator
 } from "react-native";
 import _ from "lodash";
+import styles from "./appstyles";
 
 console.disableYellowBox = true;
 
@@ -27,24 +30,12 @@ export default class App extends React.Component {
     this.getInitialUsers();
   }
 
-  keyExtractor = (item, index) => item.url;
-
-  renderItem = ({ item }) => (
-    <View style={[styles.align, styles.listContainer]}>
-      <Image
-        source={{ uri: item.avatar_url }}
-        style={{ height: 30, width: 30, borderRadius: 15 }}
-      />
-      <Text>{item.login}</Text>
-    </View>
-  );
-
   getInitialUsers = async data => {
     this.setState({
       isLoading: true
     });
 
-    let response = await fetch(`https://api.github.com/users?since=0`);
+    let response = await fetch(`https://api.github.com/users`);
     response = await response.json();
     console.log("allUsers", response);
     this.setState({
@@ -57,13 +48,33 @@ export default class App extends React.Component {
     this.setState({
       isLoading: true
     });
-    let response = await fetch(`https://api.github.com/search/users?q=${txt}`);
+    let response = await fetch(
+      `https://api.github.com/search/users?q=${txt}+sort:repositories`
+    );
     response = await response.json();
     this.setState({
       users: response.items,
       isLoading: false
     });
   };
+
+  openExternalLink = url =>
+    Linking.openURL(url).catch(err => console.error("An error occurred", err));
+
+  keyExtractor = (item, index) => item.url;
+
+  renderItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => this.openExternalLink(item.html_url)}
+      style={styles.listContainer}
+    >
+      <Image
+        source={{ uri: item.avatar_url }}
+        style={{ height: 30, width: 30, borderRadius: 15 }}
+      />
+      <Text style={styles.rowText}>{item.login}</Text>
+    </TouchableOpacity>
+  );
 
   render() {
     return (
@@ -95,8 +106,7 @@ export default class App extends React.Component {
             <FlatList
               data={this.state.users}
               extraData={this.state}
-              style={{ alignSelf: "stretch" }}
-              contentContainerStyle={{ alignItems: "flex-start" }}
+              style={{ flex: 1, width: "100%" }}
               keyExtractor={this.keyExtractor}
               renderItem={this.renderItem}
             />
@@ -106,37 +116,3 @@ export default class App extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    marginTop: 22,
-    justifyContent: "center"
-  },
-  align: {
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  listContainer: {
-    alignSelf: "stretch",
-    flexDirection: "row",
-    padding: 5,
-    alignItems: "flex-start",
-    marginHorizontal: 5,
-    borderBottomWidth: 1,
-    borderColor: "#c9c9c9",
-    height: 50
-  },
-  searchBar: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 3,
-    marginTop: "3%",
-    alignSelf: "stretch",
-    borderBottomWidth: 1,
-    borderColor: "#c9c9c9"
-  }
-});
