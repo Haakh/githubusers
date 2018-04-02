@@ -30,12 +30,7 @@ export default class App extends React.Component {
   keyExtractor = (item, index) => item.url;
 
   renderItem = ({ item }) => (
-    <View
-      style={[
-        styles.align,
-        { alignSelf: "stretch", flexDirection: "row", height: 50 }
-      ]}
-    >
+    <View style={[styles.align, styles.listContainer]}>
       <Image
         source={{ uri: item.avatar_url }}
         style={{ height: 30, width: 30, borderRadius: 15 }}
@@ -100,7 +95,8 @@ export default class App extends React.Component {
             <FlatList
               data={this.state.users}
               extraData={this.state}
-              style={{ borderWidth: 1, alignSelf: "stretch" }}
+              style={{ alignSelf: "stretch" }}
+              contentContainerStyle={{ alignItems: "flex-start" }}
               keyExtractor={this.keyExtractor}
               renderItem={this.renderItem}
             />
@@ -122,6 +118,16 @@ const styles = StyleSheet.create({
   align: {
     alignItems: "center",
     justifyContent: "center"
+  },
+  listContainer: {
+    alignSelf: "stretch",
+    flexDirection: "row",
+    padding: 5,
+    alignItems: "flex-start",
+    marginHorizontal: 5,
+    borderBottomWidth: 1,
+    borderColor: "#c9c9c9",
+    height: 50
   },
   searchBar: {
     flex: 1,
